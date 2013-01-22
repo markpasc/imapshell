@@ -37,6 +37,7 @@ class Imapshell(Termtool):
         password = getpass(host + " password: ")
 
         server = IMAPClient(host, port, ssl=use_ssl)
+        server.normalise_times = False
         server.login(username, password)
         return server
 
