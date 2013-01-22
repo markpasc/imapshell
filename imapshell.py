@@ -62,13 +62,13 @@ class Imapshell(Termtool):
             table.add_row([name, ' '.join(flags), delimiter, status['MESSAGES'], status['UNSEEN']])
         print table
 
-    @subcommand(help='list mail in a mailbox')
+    @subcommand(help='list messages in a folder')
     @argument('host', help='hostname of the IMAP server')
-    @argument('box', help='name of the mailbox to open')
+    @argument('folder', help='name of the folder to list')
     @argument('--no-ssl', action='store_false', dest='ssl', help='connect without SSL')
-    def list(self, args):
+    def messages(self, args):
         server = self.connect(args.host, args.ssl)
-        with folder(server, args.box, readonly=True):
+        with folder(server, args.folder, readonly=True):
             message_ids = server.search()
             messages = server.fetch(message_ids, ['BODY.PEEK[HEADER]', 'INTERNALDATE', 'FLAGS'])
 
