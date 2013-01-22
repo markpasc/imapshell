@@ -87,7 +87,7 @@ class Imapshell(Termtool):
     @argument('right_folder', metavar='to_folder', help='folder on "to" server to copy messages to')
     @argument('--from-no-ssl', action='store_false', dest='left_ssl', help='connect to "from" server without SSL')
     @argument('--to-no-ssl', action='store_false', dest='right_ssl', help='connect to "to" server without SSL')
-    def copy(self, args):
+    def migrate(self, args):
         left_server = self.connect(args.left_server, args.left_ssl)
         with folder(left_server, args.left_folder, readonly=True):
             message_ids = left_server.search()
