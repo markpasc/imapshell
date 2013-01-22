@@ -79,6 +79,28 @@ class Imapshell(Termtool):
             table.add_row([message['SEQ'], headers['from'], headers['subject'], timestamp, flags])
         print table
 
+    @subcommand(help='copy messages from one server to another')
+    @argument('left_server', metavar='from', help='server to copy messages from')
+    @argument('left_folder', metavar='from_folder', help='folder on "from" server to copy messages from')
+    @argument('right_server', metavar='to', help='server to copy messages to')
+    @argument('right_folder', metavar='to_folder', help='folder on "to" server to copy messages to')
+    @argument('--from-no-ssl', action='store_false', dest='left_ssl', help='connect to "from" server without SSL')
+    @argument('--to-no-ssl', action='store_false', dest='right_ssl', help='connect to "to" server without SSL')
+    def copy(self, args):
+        left_server = self.connect(args.left_server, args.left_ssl)
+        with folder(left_server, args.left_folder, readonly=True):
+            message_ids = left_server.search()
+            messages = left_server.fetch(message_ids, ['BODY.PEEK[]', 'INTERNALDATE', 'FLAGS'])
+
+        logging.debug("Found %d messages, copying...", len(messages))
+
+        right_server = self.connect(args.right_server, args.right_ssl)
+        for message in messages.itervalues():
+            right_server.append(args.right_folder, message['BODY[]'], message['FLAGS'], message['INTERNALDATE'])
+            logging.debug("appended message %r", message['SEQ'])
+
+        logging.info("Copied %d messages", len(messages))
+
 
 if __name__ == '__main__':
     Imapshell().run()
