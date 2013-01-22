@@ -36,6 +36,18 @@ class Imapshell(Termtool):
         logging.info("Connected successfully")
         logging.debug("Server capabilities: %r", conn.capabilities())
 
+    @subcommand(help='list available mail folders')
+    @argument('host', help='hostname of the IMAP server')
+    @argument('--no-ssl', action='store_false', dest='ssl', help='connect without SSL')
+    def folders(self, args):
+        server = self.connect(args.host, args.ssl)
+        folders = server.list_folders()
+
+        table = self.table(['Name', 'Flags', 'Delimiter'])
+        for flags, delimiter, name in folders:
+            table.add_row([name, ' '.join(flags), delimiter])
+        print table
+
 
 if __name__ == '__main__':
     Imapshell().run()
