@@ -69,12 +69,14 @@ class Imapshell(Termtool):
         server = self.connect(args.host, args.ssl)
         with folder(server, args.box, readonly=True):
             message_ids = server.search()
-            messages = server.fetch(message_ids, ['BODY.PEEK[HEADER]', 'FLAGS'])
+            messages = server.fetch(message_ids, ['BODY.PEEK[HEADER]', 'INTERNALDATE', 'FLAGS'])
 
-        table = self.table(['#', 'From', 'Subject', 'Flags'])
+        table = self.table(['#', 'From', 'Subject', 'Timestamp', 'Flags'])
         for message in messages.itervalues():
             headers = Parser().parsestr(message['BODY[HEADER]'])
-            table.add_row([message['SEQ'], headers['from'], headers['subject'], ' '.join(message['FLAGS'])])
+            timestamp = message['INTERNALDATE'].isoformat()
+            flags = ' '.join(message['FLAGS'])
+            table.add_row([message['SEQ'], headers['from'], headers['subject'], timestamp, flags])
         print table
 
 
