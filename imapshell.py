@@ -56,9 +56,10 @@ class Imapshell(Termtool):
         server = self.connect(args.host, args.ssl)
         folders = server.list_folders()
 
-        table = self.table(['Name', 'Flags', 'Delimiter'])
+        table = self.table(['Name', 'Flags', 'Delimiter', 'Messages', 'Unread'])
         for flags, delimiter, name in folders:
-            table.add_row([name, ' '.join(flags), delimiter])
+            status = server.folder_status(name, ['MESSAGES', 'UNSEEN'])
+            table.add_row([name, ' '.join(flags), delimiter, status['MESSAGES'], status['UNSEEN']])
         print table
 
     @subcommand(help='list mail in a mailbox')
