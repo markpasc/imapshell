@@ -1,10 +1,22 @@
 #!/usr/bin/env python
 
+from contextlib import contextmanager
+from email.parser import Parser
 from getpass import getpass
 from imapclient import IMAPClient
 import logging
+from pprint import pprint
 
 from termtool import Termtool, argument, subcommand
+
+
+@contextmanager
+def folder(server, foldername, readonly=False):
+    server.select_folder(foldername, readonly=readonly)
+    try:
+        yield
+    finally:
+        server.close_folder()
 
 
 class Imapshell(Termtool):
@@ -46,6 +58,22 @@ class Imapshell(Termtool):
         table = self.table(['Name', 'Flags', 'Delimiter'])
         for flags, delimiter, name in folders:
             table.add_row([name, ' '.join(flags), delimiter])
+        print table
+
+    @subcommand(help='list mail in a mailbox')
+    @argument('host', help='hostname of the IMAP server')
+    @argument('box', help='name of the mailbox to open')
+    @argument('--no-ssl', action='store_false', dest='ssl', help='connect without SSL')
+    def list(self, args):
+        server = self.connect(args.host, args.ssl)
+        with folder(server, args.box, readonly=True):
+            message_ids = server.search()
+            messages = server.fetch(message_ids, ['BODY.PEEK[HEADER]', 'FLAGS'])
+
+        table = self.table(['#', 'From', 'Subject', 'Flags'])
+        for message in messages.itervalues():
+            headers = Parser().parsestr(message['BODY[HEADER]'])
+            table.add_row([message['SEQ'], headers['from'], headers['subject'], ' '.join(message['FLAGS'])])
         print table
 
 
