@@ -102,6 +102,48 @@ class Imapshell(Termtool):
 
         logging.info("Copied %d messages", len(messages))
 
+    @subcommand(help='merge a folder into another on one server')
+    @argument('host', help='hostname of the IMAP server')
+    @argument('left_folder', metavar='from_folder', help='folder to move messages from')
+    @argument('right_folder', metavar='to_folder', help='folder to move messages into')
+    @argument('--no-ssl', action='store_false', dest='ssl', help='connect without SSL')
+    def merge(self, args):
+        server = self.connect(args.host, args.ssl)
+
+        with folder(server, args.left_folder):  # read-write
+            message_ids = server.search()
+            result = server.copy(message_ids, args.right_folder)
+            logging.debug("Moved %d messages", len(message_ids))
+            server.delete_messages(message_ids)
+            server.expunge()
+
+        logging.info("Moved %d messages from %s to %s", len(message_ids), args.left_folder, args.right_folder)
+
+    @subcommand(help='create a new mail folder')
+    @argument('host', help='hostname of the IMAP server')
+    @argument('folder', help='name of the folder to create')
+    @argument('--no-ssl', action='store_false', dest='ssl', help='connect without SSL')
+    def createfolder(self, args):
+        server = self.connect(args.host, args.ssl)
+        server.create_folder(args.folder)
+        logging.info("Created!")
+
+    @subcommand(help='delete a mail folder')
+    @argument('host', help='hostname of the IMAP server')
+    @argument('folder', help='name of the folder to delete')
+    @argument('--yes', action='store_true', help='delete the folder even if it contains messages')
+    @argument('--no-ssl', action='store_false', dest='ssl', help='connect without SSL')
+    def rmfolder(self, args):
+        server = self.connect(args.host, args.ssl)
+
+        status = server.folder_status(args.folder, ['MESSAGES'])
+        if status['MESSAGES'] > 0 and not args.yes:
+            logging.error("Folder %s contains messages", args.folder)
+            return
+
+        server.delete_folder(args.folder)
+        logging.info("Deleted %s with %d messages", args.folder, status['MESSAGES'])
+
 
 if __name__ == '__main__':
     Imapshell().run()
