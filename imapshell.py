@@ -47,7 +47,7 @@ class Imapshell(Termtool):
     def login(self, args):
         server = self.connect(args.host, args.ssl)
         logging.info("Connected successfully")
-        logging.debug("Server capabilities: %r", conn.capabilities())
+        logging.debug("Server capabilities: %r", server.capabilities())
 
     @subcommand(help='list available mail folders')
     @argument('host', help='hostname of the IMAP server')
