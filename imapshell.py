@@ -57,7 +57,7 @@ class Imapshell(Termtool):
         folders = server.list_folders()
 
         table = self.table(['Name', 'Flags', 'Delimiter', 'Messages', 'Unread'])
-        for flags, delimiter, name in folders:
+        for flags, delimiter, name in sorted(folders, key=lambda f: f[2]):
             status = server.folder_status(name, ['MESSAGES', 'UNSEEN'])
             table.add_row([name, ' '.join(flags), delimiter, status['MESSAGES'], status['UNSEEN']])
         print table
