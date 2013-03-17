@@ -97,7 +97,9 @@ class Imapshell(Termtool):
 
         right_server = self.connect(args.right_server, args.right_ssl)
         for message in messages.itervalues():
-            right_server.append(args.right_folder, message['BODY[]'], message['FLAGS'], message['INTERNALDATE'])
+            # \Recent is a "read-only" flag so don't try to set it.
+            flags = [flag for flag in message['FLAGS'] if flag.lower() != '\\recent']
+            right_server.append(args.right_folder, message['BODY[]'], flags, message['INTERNALDATE'])
             logging.debug("appended message %r", message['SEQ'])
 
         logging.info("Copied %d messages", len(messages))
