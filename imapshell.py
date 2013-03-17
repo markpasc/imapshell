@@ -3,10 +3,10 @@
 from contextlib import contextmanager
 from email.parser import Parser
 from getpass import getpass
-from imapclient import IMAPClient
 import logging
 from pprint import pprint
 
+from imapclient import IMAPClient
 from termtool import Termtool, argument, subcommand
 
 
