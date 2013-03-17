@@ -104,6 +104,25 @@ class Imapshell(Termtool):
 
         logging.info("Copied %d messages", len(messages))
 
+    @subcommand(help='peek at a message')
+    @argument('host', help='hostname of the IMAP server')
+    @argument('folder', help='name of the folder containing the message to show')
+    @argument('message', help='message ID of the message to show')
+    @argument('--no-ssl', action='store_false', dest='ssl', help='connect without SSL')
+    def peek(self, args):
+        server = self.connect(args.host, args.ssl)
+        with folder(server, args.folder, readonly=True):
+            messages = server.fetch([args.message], ['BODY.PEEK[]', 'INTERNALDATE', 'FLAGS'])
+            for messageid, message in messages.items():
+                logging.debug("Message %r has keys %s", messageid, ', '.join(message.keys()))
+                body = message['BODY[]']
+                timestamp = message['INTERNALDATE'].isoformat()
+                flags = ' '.join(message['FLAGS'])
+
+                print messageid, timestamp, flags
+                print body
+                print
+
     @subcommand(help='merge a folder into another on one server')
     @argument('host', help='hostname of the IMAP server')
     @argument('left_folder', metavar='from_folder', help='folder to move messages from')
