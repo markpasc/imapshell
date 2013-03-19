@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 from contextlib import contextmanager
 from email.parser import Parser
 from getpass import getpass
