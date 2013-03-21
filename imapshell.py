@@ -194,8 +194,12 @@ def rmfolder(host, folder, yes=False, no_ssl=False):
     logging.info("Deleted %s with %d messages", folder, status['MESSAGES'])
 
 
-if __name__ == '__main__':
+def main():
     parser = argh.ArghParser()
     arghlog.add_logging(parser)
     parser.add_commands(cmd)
     parser.dispatch()
+
+
+if __name__ == '__main__':
+    main()

@@ -2,4 +2,4 @@
 
 import imapshell
 
-imapshell.Imapshell().run()
+imapshell.main()
