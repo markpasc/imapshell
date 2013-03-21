@@ -43,10 +43,11 @@ def connect(host, no_ssl=False):
     server.logout()
 
 
-commands = list()
+class CommandSet(set):
+    def __call__(self, fn):
+        self.add(fn)
 
-def cmd(fn):
-    commands.append(fn)
+cmd = CommandSet()
 
 
 @cmd
@@ -193,4 +194,4 @@ def rmfolder(host, folder, yes=False, no_ssl=False):
 
 
 if __name__ == '__main__':
-    argh.dispatch_commands(commands)
+    argh.dispatch_commands(cmd)
