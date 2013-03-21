@@ -7,6 +7,7 @@ from pprint import pprint
 import argh
 from argh import arg
 from imapclient import IMAPClient
+from prettytable import PrettyTable
 
 
 @contextmanager
@@ -66,7 +67,7 @@ def folders(host, no_ssl=False):
     with connect(host, no_ssl) as server:
         folders = server.list_folders()
 
-        table = self.table(['Name', 'Flags', 'Delimiter', 'Messages', 'Unread'])
+        table = PrettyTable(['Name', 'Flags', 'Delimiter', 'Messages', 'Unread'])
         for flags, delimiter, name in sorted(folders, key=lambda f: f[2]):
             status = server.folder_status(name, ['MESSAGES', 'UNSEEN'])
             table.add_row([name, ' '.join(flags), delimiter, status['MESSAGES'], status['UNSEEN']])
@@ -84,7 +85,7 @@ def messages(host, folder, no_ssl=False):
             message_ids = server.search()
             messages = server.fetch(message_ids, ['BODY.PEEK[HEADER]', 'INTERNALDATE', 'FLAGS'])
 
-    table = self.table(['#', 'From', 'Subject', 'Timestamp', 'Flags'])
+    table = PrettyTable(['#', 'From', 'Subject', 'Timestamp', 'Flags'])
     for message in messages.itervalues():
         headers = Parser().parsestr(message['BODY[HEADER]'])
         timestamp = message['INTERNALDATE'].isoformat()
