@@ -6,6 +6,7 @@ from pprint import pprint
 
 import argh
 from argh import arg
+import arghlog
 from imapclient import IMAPClient
 from prettytable import PrettyTable
 
@@ -194,4 +195,7 @@ def rmfolder(host, folder, yes=False, no_ssl=False):
 
 
 if __name__ == '__main__':
-    argh.dispatch_commands(cmd)
+    parser = argh.ArghParser()
+    arghlog.add_logging(parser)
+    parser.add_commands(cmd)
+    parser.dispatch()
