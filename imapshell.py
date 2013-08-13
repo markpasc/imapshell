@@ -78,12 +78,12 @@ def folders(host, no_ssl=False):
 
 @cmd
 @arg('host', help='hostname of the IMAP server')
-@arg('folder', help='name of the folder to list')
+@arg('foldername', help='name of the folder to list')
 @arg('--no-ssl', help='connect without SSL')
-def messages(host, folder, no_ssl=False):
+def messages(host, foldername, no_ssl=False):
     """List messages in a folder."""
     with connect(host, no_ssl) as server:
-        with folder(server, folder, readonly=True):
+        with folder(server, foldername, readonly=True):
             message_ids = server.search()
             messages = server.fetch(message_ids, ['BODY.PEEK[HEADER]', 'INTERNALDATE', 'FLAGS'])
 
@@ -124,13 +124,13 @@ def migrate(from_host, from_folder, to_host, to_folder, from_no_ssl=False, to_no
 
 @cmd
 @arg('host', help='hostname of the IMAP server')
-@arg('folder', help='name of the folder containing the message to show')
+@arg('foldername', help='name of the folder containing the message to show')
 @arg('messageid', help='message ID of the message to show')
 @arg('--no-ssl', help='connect without SSL')
-def peek(host, folder, messageid, no_ssl=False):
+def peek(host, foldername, messageid, no_ssl=False):
     """Peek at a message."""
     with connect(host, no_ssl) as server:
-        with folder(server, folder, readonly=True):
+        with folder(server, foldername, readonly=True):
             messages = server.fetch([messageid], ['BODY.PEEK[]', 'INTERNALDATE', 'FLAGS'])
     for mid, message in messages.items():
         logging.debug("Message %r has keys %s", mid, ', '.join(message.keys()))
