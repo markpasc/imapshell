@@ -56,6 +56,9 @@ class Imapshell(Termtool):
 
         table = self.table(['Name', 'Flags', 'Delimiter', 'Messages', 'Unread'])
         for flags, delimiter, name in sorted(folders, key=lambda f: f[2]):
+            logging.debug("Flags for folder %s: %r", name, flags)
+            if r'\Noselect' in flags:
+                continue
             status = server.folder_status(name, ['MESSAGES', 'UNSEEN'])
             table.add_row([name, ' '.join(flags), delimiter, status['MESSAGES'], status['UNSEEN']])
         print table
